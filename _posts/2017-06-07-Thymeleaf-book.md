@@ -44,13 +44,13 @@ Thymeleaf 是一种可扩展的模板引擎（其实应该称呼为模板引擎�
 
 一个对象，运用一些逻辑（如标签，文本，注释，或仅仅是一个占位符），被称为处理器，这些处理器加一些额外的东西，被称为方言。其中Thymeleaf的核心库提供了一个一目了然的方言被称为标准方言，他应该能够满足大多数用户的需求。
 
-      应明确一点就是，方言实际上可以是没有处理器，完全有其他的类型的东西注册，但处理器是一种最常见的使用方式。
+应明确一点就是，方言实际上可以是没有处理器，完全有其他的类型的东西注册，但处理器是一种最常见的使用方式。
 
 本教程即使用标准方言，你可以在下面页中了解这个方言的每一个属性和语法功能的定义，即使他没有明确提及。
 
 当然，如果用户想要定义自己的处理逻辑，和使用库中的各种先进功能，那么，可以定义自己的方言（甚至扩展标准方言），而模板引擎可以一次配置多种方言。
 
-        官方thymeleaf-spring3和thymeleaf-spring4集成包都定义了另一种方言被称为“String标准方言”，大多数相当于标准方言，但有一小部分为了适应Spring框架的某些功能（如利用Spring的EL表达式而不是Thymeleaf标准的OGNL）所以，如果你是一个Spring mvc用户，请你不要在浪费时间抓紧学习，因为那你在这里学习的所有东西，都讲在你的Spring项目中使用
+官方thymeleaf-spring3和thymeleaf-spring4集成包都定义了另一种方言被称为“String标准方言”，大多数相当于标准方言，但有一小部分为了适应Spring框架的某些功能（如利用Spring的EL表达式而不是Thymeleaf标准的OGNL）所以，如果你是一个Spring mvc用户，请你不要在浪费时间抓紧学习，因为那你在这里学习的所有东西，都讲在你的Spring项目中使用
 
 Thymeleaf标准方言可以在任何模式的模板中使用，尤其适合面向web的模板模式（如HTML5和XHTML），除了HTML5，他可以支持和验证一下的XHTML格式：XHTML 1.0 Transitional, XHTML 1.0 Strict, XHTML 1.0, 和 XHTML 1.1.
 
@@ -270,7 +270,7 @@ templateResolver.setCacheTTLMs(3600000L);
 
 当然，如果缓存达到了最大缓存，并且此模板是最早的缓存条目，那么在达到TTL之前，他还是有可能被清理出缓存的。
 
-        缓存的行为和大小，都可以由用户自己定义，既可以实现ICacheManager接口自己实现规则，也可以通过修改StandardCacheManager对象设置缓存默认管理规则。
+缓存的行为和大小，都可以由用户自己定义，既可以实现ICacheManager接口自己实现规则，也可以通过修改StandardCacheManager对象设置缓存默认管理规则。
 
 我们将在以后学习模板解释器，现在让我们来看看模板引擎对象。
 ### 模板引擎
@@ -315,7 +315,7 @@ templateEngine.setTemplateResolver(templateResolver);
 </html>
 ```
 
-首先你会注意到，这个文件是HTML5标准的DOCTYPE格式，他可以在主流浏览器中正确的显示（浏览器会忽略掉一下他不认识的属性，如th:text）。
+首先你会注意到，这个文件是HTML5标准的DOCTYPE格式，他可以在主流浏览器中正确的显示（浏览器会忽略掉一下他不认识的属性，如th:text。
 
 但是，你也可能注意到，这个模板并不是一个完全有效的HTML5文档，因为有HTML5规格中没有的非标准属性，如th:*属性，事实上，我们添加了一个xmlns:th属性在html标签，用来分类非html5的标记或属性。
 
@@ -348,7 +348,7 @@ templateEngine.setTemplateResolver(templateResolver);
 
 自定义的data-前缀属性是html5完全支持的语法，这样，上面这段代码就是一个完全符合HTML5定义的文档
 
-        这两种语法是完全等价的，可以无缝替换，但为了使代码更为简洁，本教程使用命名空间符号(th:),另外，th:语法是更常用的语法，在每一种Thymeleaf模板模式都是可以使用，但data-这种方式只能在HTML模式中使用。
+这两种语法是完全等价的，可以无缝替换，但为了使代码更为简洁，本教程使用命名空间符号(th:),另外，th:语法是更常用的语法，在每一种Thymeleaf模板模式都是可以使用，但data-这种方式只能在HTML模式中使用。
 
 #### 使用th:text和外部文本
 
@@ -467,9 +467,9 @@ templateEngine.process("home", ctx, response.getWriter());
 #### 非转义文本
 
 一个最简版的Home页面似乎已经准备好了，但是，如果有这样的需求怎么办呢：
-
-home.welcome=欢迎光临这个<b>超级棒</b>的商店!
-
+```html
+  home.welcome=欢迎光临这个<b>超级棒</b>的商店!
+```
 如果是这样的，输出结果为：
 
 home.welcome=欢迎光临这个&lt;b&gt;超级棒 &lt;/b&gt;的商店!
@@ -514,7 +514,7 @@ templateEngine.process("home", ctx,response.getWriter());
 
 可以看到，我们仍然使用th:text属性，但是语法稍有不同，这次使用的是${...}而不是#{...},这是一个用来显示变量值的表达式。它使用OGNL语言来映射context中的变量。
 
-\({today}表达式只是简单的表示为：获取一个叫today的变量，但是这个表达式也可以变得很复杂，如\){user.name}的意思是获取一个user变量，并调用他的getName()方法。
+\\${today}表达式只是简单的表示为：获取一个叫today的变量，但是这个表达式也可以变得很复杂，如\\${user.name}的意思是获取一个user变量，并调用他的getName()方法。
 
 属性值有相当多的可能性，如：消息，变量表达式等等，下一章将展示这些都是什么.
 ### 标准表达式语法
@@ -523,9 +523,11 @@ templateEngine.process("home", ctx,response.getWriter());
 
 在之前，已经看到过两种有效的属性表达式：消息和变量表达式：
 
+```html
 <p th:utext="#{home.welcome}">欢迎您光临本店!</p>
 
 <p>当前日期为: <span th:text="${today}">2016年9月5日</span></p>
+```
 
 但还有更多的类型和有趣的细节，我们都还不知道，下面我们首先来一个标准表达式的快速总结：
 
@@ -681,9 +683,9 @@ ${person.createCompleteNameWithSeparator('-')}
 
 所以我们可以这样使用
 
-这里是:<span th:text="${#locale.country}">中国</span>.
+    这里是:<span th:text="${#locale.country}">中国</span>.
 
-    你可以在附录1中查看这些对象的全部参考
+你可以在附录1中查看这些对象的全部参考
 
 #### 工具对象表达式
 
@@ -736,7 +738,7 @@ ctx.setVariable("today",Calendar.getInstance());
 #### 选定变量表达式（或使用{...}) 
 #### 变量表达式不但可以使用${...}表达式，同时也可以使用{...}表达式。
 
-他们有个最重要的区别：*{...}表达式的值是在选定的对象而不是整个context的map。也就是说，如果没有选定的对象，*{...}和${...}没有区别
+他们有个最重要的区别：*{...}表达式的值是在选定的对象而不是整个context的map。也就是说，如果没有选定的对象，\*{...}和${...}没有区别
 
 那么问题来了：什么是选定对象？一个th:object对象属性，使用用户权限页面来演示一下：
 
