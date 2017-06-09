@@ -262,4 +262,95 @@ As of Spring 2.5, this annotation also serves as a specialization of @Component,
 
 
 
+### 5. @Bean
+Indicates that a method produces a bean to be managed by the Spring container. 
+
+Overview
+The names and semantics of the attributes to this annotation are intentionally similar to those of the <bean/> element in the Spring XML schema. For example: 
+
+```java
+     @Bean
+     public MyBean myBean() {
+         // instantiate and configure MyBean obj
+         return obj;
+     }
+```
+Bean Names
+While a name attribute is available, the default strategy for determining the name of a bean is to use the name of the @Bean method. This is convenient and intuitive, but if explicit naming is desired, the name attribute (or its alias value) may be used. Also note that name accepts an array of Strings, allowing for multiple names (i.e. a primary bean name plus one or more aliases) for a single bean. 
+
+   ```java
+  @Bean({"b1", "b2"}) // bean available as 'b1' and 'b2', but not 'myBean'
+     public MyBean myBean() {
+         // instantiate and configure MyBean obj
+         return obj;
+     }
+```
+
+Scope, DependsOn, Primary, and Lazy
+Note that the @Bean annotation does not provide attributes for scope, depends-on, primary, or lazy. Rather, it should be used in conjunction with @Scope, @DependsOn, @Primary, and @Lazy annotations to achieve those semantics. For example: 
+
+  ```java
+   @Bean
+     @Scope("prototype")
+     public MyBean myBean() {
+         // instantiate and configure MyBean obj
+         return obj;
+     }
+```
+@Bean Methods in @Configuration Classes
+Typically, @Bean methods are declared within @Configuration classes. In this case, bean methods may reference other @Bean methods in the same class by calling them directly. This ensures that references between beans are strongly typed and navigable. Such so-called 'inter-bean references' are guaranteed to respect scoping and AOP semantics, just like getBean() lookups would. These are the semantics known from the original 'Spring JavaConfig' project which require CGLIB subclassing of each such configuration class at runtime. As a consequence, @Configuration classes and their factory methods must not be marked as final or private in this mode. For example: 
+
+ ```java
+@Configuration
+ public class AppConfig {
+
+     @Bean
+     public FooService fooService() {
+         return new FooService(fooRepository());
+     }
+
+     @Bean
+     public FooRepository fooRepository() {
+         return new JdbcFooRepository(dataSource());
+     }
+
+     // ...
+ }
+```
+@Bean Lite Mode
+@Bean methods may also be declared within classes that are not annotated with @Configuration. For example, bean methods may be declared in a @Component class or even in a plain old class. In such cases, a @Bean method will get processed in a so-called 'lite' mode. 
+
+Bean methods in lite mode will be treated as plain factory methods by the container (similar to factory-method declarations in XML), with scoping and lifecycle callbacks properly applied. The containing class remains unmodified in this case, and there are no unusual constraints for the containing class or the factory methods. 
+
+In contrast to the semantics for bean methods in @Configuration classes, 'inter-bean references' are not supported in lite mode. Instead, when one @Bean-method invokes another @Bean-method in lite mode, the invocation is a standard Java method invocation; Spring does not intercept the invocation via a CGLIB proxy. This is analogous to inter-@Transactional method calls where in proxy mode, Spring does not intercept the invocation — Spring does so only in AspectJ mode. 
+
+For example: 
+
+```java
+ @Component
+ public class Calculator {
+     public int sum(int a, int b) {
+         return a+b;
+     }
+
+     @Bean
+     public MyBean myBean() {
+         return new MyBean();
+     }
+ }
+```
+Bootstrapping
+See @Configuration Javadoc for further details including how to bootstrap the container using AnnotationConfigApplicationContext and friends. 
+
+BeanFactoryPostProcessor-returning @Bean methods
+Special consideration must be taken for @Bean methods that return Spring BeanFactoryPostProcessor (BFPP) types. Because BFPP objects must be instantiated very early in the container lifecycle, they can interfere with processing of annotations such as @Autowired, @Value, and @PostConstruct within @Configuration classes. To avoid these lifecycle issues, mark BFPP-returning @Bean methods as static. For example: 
+
+   ```java
+  @Bean
+     public static PropertyPlaceholderConfigurer ppc() {
+         // instantiate, configure and return ppc ...
+     }
+```
+By marking this method as static, it can be invoked without causing instantiation of its declaring @Configuration class, thus avoiding the above-mentioned lifecycle conflicts. Note however that static @Bean methods will not be enhanced for scoping and AOP semantics as mentioned above. This works out in BFPP cases, as they are not typically referenced by other @Bean methods. As a reminder, a WARN-level log message will be issued for any non-static @Bean methods having a return type assignable to BeanFactoryPostProcessor.
+
 
